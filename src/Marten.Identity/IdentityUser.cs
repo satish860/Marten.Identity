@@ -6,7 +6,7 @@ namespace Marten.Identity
 {
     public class IdentityUser
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         public string UserName { get; set; }
     }
