@@ -18,6 +18,8 @@ jobs:
       with:
          username: ${{ secrets.DOCKERHUB_USERNAME }}
          password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Postgres with Latest version
+      run: docker run --name some-postgres -p 5432:5432 -e POSTGRES_PASSWORD=mysecretpassword -d postgres  
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
