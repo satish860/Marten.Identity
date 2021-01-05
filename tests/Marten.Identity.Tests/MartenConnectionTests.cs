@@ -20,7 +20,7 @@ namespace Marten.Identity.Tests
         [Fact]
         public void Should_be_able_to_Connect_to_Document_Store()
         {
-            var store = DocumentStore.For("host=localhost;database=postgres;password=mysecretpassword;username=postgres");
+            var store = DocumentStore.For("host=localhost;database=postgres;password=mysecretpassword;username=postgres;pooling=true");
             IDocumentSession session= store.OpenSession();
             session.Connection.FullState.Should().Be(ConnectionState.Open);
         }
