@@ -16,21 +16,21 @@ namespace Marten.Identity.Tests
 
         private void StartDocker()
         {
-            containerService = new Builder().UseContainer()
-                .UseImage("postgres")
-                .WithEnvironment("POSTGRES_PASSWORD=mysecretpassword")
-                .ReuseIfExists()
-                .WithLabel("MartenTestDB")
-                .ExposePort(5432, 5432)
-                .WaitForPort("5432/tcp", 10000 /*10s*/, "127.0.0.1")
-                .Build();
-            containerService.RemoveOnDispose = true;
-            containerService.Start();
+            //containerService = new Builder().UseContainer()
+            //    .UseImage("postgres")
+            //    .WithEnvironment("POSTGRES_PASSWORD=mysecretpassword")
+            //    .ReuseIfExists()
+            //    .WithLabel("MartenTestDB")
+            //    .ExposePort(5432, 5432)
+            //    .WaitForPort("5432/tcp", 10000 /*10s*/, "127.0.0.1")
+            //    .Build();
+            //containerService.RemoveOnDispose = true;
+            //containerService.Start();
         }
 
         public void Dispose()
         {
-            containerService.Dispose();
+           // containerService.Dispose();
         }
     }
 }
