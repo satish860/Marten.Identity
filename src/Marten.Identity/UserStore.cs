@@ -19,18 +19,18 @@ namespace Marten.Identity
             this.documentStore = documentStore;
         }
 
-        public Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken)
+        public async Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken)
         {
-            if(string.IsNullOrEmpty(user.Id))
+            if (string.IsNullOrEmpty(user.Id))
             {
                 user.Id = Guid.NewGuid().ToString();
             }
             using (IDocumentSession session = this.documentStore.OpenSession())
             {
                 session.Store(user);
-                session.SaveChangesAsync();
+                await session.SaveChangesAsync();
             }
-            return Task.FromResult(IdentityResult.Success);
+            return IdentityResult.Success;
         }
 
         public Task<IdentityResult> DeleteAsync(TUser user, CancellationToken cancellationToken)
@@ -78,9 +78,14 @@ namespace Marten.Identity
             throw new NotImplementedException();
         }
 
-        public Task<IdentityResult> UpdateAsync(TUser user, CancellationToken cancellationToken)
+        public async Task<IdentityResult> UpdateAsync(TUser user, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            using (IDocumentSession session = this.documentStore.OpenSession())
+            {
+                session.Update(user);
+                await session.SaveChangesAsync();
+            }
+            return IdentityResult.Success;
         }
     }
 }
