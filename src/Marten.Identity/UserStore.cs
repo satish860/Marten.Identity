@@ -33,9 +33,14 @@ namespace Marten.Identity
             return IdentityResult.Success;
         }
 
-        public Task<IdentityResult> DeleteAsync(TUser user, CancellationToken cancellationToken)
+        public async Task<IdentityResult> DeleteAsync(TUser user, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            using (IDocumentSession session = this.documentStore.OpenSession())
+            {
+                session.Delete(user);
+                await session.SaveChangesAsync();
+            }
+            return IdentityResult.Success;
         }
 
         public void Dispose()

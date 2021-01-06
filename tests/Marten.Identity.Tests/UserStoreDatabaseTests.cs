@@ -38,5 +38,18 @@ namespace Marten.Identity.Tests
                 identityResult.Succeeded.Should().BeTrue();
             }
         }
+
+        [Fact]
+        public async Task Should_be_able_to_delete_user()
+        {
+            IUserStore<IdentityUser> userStore = new UserStore<IdentityUser, IdentityRole>(fixture.documentStore);
+            var id = Guid.NewGuid().ToString();
+            var creationResult = await userStore.CreateAsync(new IdentityUser { Id = id, UserName = "satish" }, CancellationToken.None);
+            if (creationResult.Succeeded)
+            {
+                var identityResult = await userStore.DeleteAsync(new IdentityUser { Id = id, UserName = "satish1" }, CancellationToken.None);
+                identityResult.Succeeded.Should().BeTrue();
+            }
+        }
     }
 }
