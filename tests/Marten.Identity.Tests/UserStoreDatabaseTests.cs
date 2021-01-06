@@ -51,5 +51,19 @@ namespace Marten.Identity.Tests
                 identityResult.Succeeded.Should().BeTrue();
             }
         }
+
+
+        [Fact]
+        public async Task Should_be_able_to_Query_userbyUser()
+        {
+            IUserStore<IdentityUser> userStore = new UserStore<IdentityUser, IdentityRole>(fixture.documentStore);
+            var id = Guid.NewGuid().ToString();
+            var creationResult = await userStore.CreateAsync(new IdentityUser { Id = id, UserName = "satish3" }, CancellationToken.None);
+            if (creationResult.Succeeded)
+            {
+                var result = await userStore.FindByNameAsync("satish3" , CancellationToken.None);
+                result.Id.Should().Be(id);
+            }
+        }
     }
 }

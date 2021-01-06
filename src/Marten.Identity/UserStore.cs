@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,7 +26,7 @@ namespace Marten.Identity
             {
                 user.Id = Guid.NewGuid().ToString();
             }
-            using (IDocumentSession session = this.documentStore.OpenSession())
+            using (IDocumentSession session = this.documentStore.LightweightSession())
             {
                 session.Store(user);
                 await session.SaveChangesAsync();
@@ -35,7 +36,7 @@ namespace Marten.Identity
 
         public async Task<IdentityResult> DeleteAsync(TUser user, CancellationToken cancellationToken)
         {
-            using (IDocumentSession session = this.documentStore.OpenSession())
+            using (IDocumentSession session = this.documentStore.LightweightSession())
             {
                 session.Delete(user);
                 await session.SaveChangesAsync();
@@ -45,7 +46,6 @@ namespace Marten.Identity
 
         public void Dispose()
         {
-            throw new NotImplementedException();
         }
 
         public Task<TUser> FindByIdAsync(string userId, CancellationToken cancellationToken)
@@ -53,9 +53,12 @@ namespace Marten.Identity
             throw new NotImplementedException();
         }
 
-        public Task<TUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
+        public async Task<TUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            using (IQuerySession session = this.documentStore.QuerySession())
+            {
+               return await session.Query<TUser>().SingleOrDefaultAsync(p => p.UserName == normalizedUserName);
+            }
         }
 
         public Task<string> GetNormalizedUserNameAsync(TUser user, CancellationToken cancellationToken)
