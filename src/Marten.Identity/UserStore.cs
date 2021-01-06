@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Marten;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,9 +12,25 @@ namespace Marten.Identity
          where TUser : IdentityUser
          where TRole : IdentityRole
     {
+        private readonly IDocumentStore documentStore;
+
+        public UserStore(IDocumentStore documentStore)
+        {
+            this.documentStore = documentStore;
+        }
+
         public Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            if(string.IsNullOrEmpty(user.Id))
+            {
+                user.Id = Guid.NewGuid().ToString();
+            }
+            using (IDocumentSession session = this.documentStore.OpenSession())
+            {
+                session.Store(user);
+                session.SaveChangesAsync();
+            }
+            return Task.FromResult(IdentityResult.Success);
         }
 
         public Task<IdentityResult> DeleteAsync(TUser user, CancellationToken cancellationToken)
