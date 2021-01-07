@@ -60,32 +60,39 @@ namespace Marten.Identity
 
         public Task<string> GetNormalizedRoleNameAsync(TRole role, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(role.Name.ToLowerInvariant());
         }
 
         public Task<string> GetRoleIdAsync(TRole role, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(role.Id);
         }
 
         public Task<string> GetRoleNameAsync(TRole role, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(role.Name);
         }
 
         public Task SetNormalizedRoleNameAsync(TRole role, string normalizedName, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            role.Name = normalizedName.ToLowerInvariant();
+            return Task.CompletedTask;
         }
 
         public Task SetRoleNameAsync(TRole role, string roleName, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            role.Name = roleName;
+            return Task.CompletedTask;
         }
 
-        public Task<IdentityResult> UpdateAsync(TRole role, CancellationToken cancellationToken)
+        public async Task<IdentityResult> UpdateAsync(TRole role, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            using (IDocumentSession session = this.documentStore.LightweightSession())
+            {
+                session.Update(role);
+                await session.SaveChangesAsync();
+            }
+            return IdentityResult.Success;
         }
     }
 }

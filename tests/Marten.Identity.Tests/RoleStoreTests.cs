@@ -64,5 +64,44 @@ namespace Marten.Identity.Tests
                 role.Name.Should().Be("Manager sr1");
             }
         }
+
+        [Fact]
+        public async Task Should_Get_Normalized_Role_Name()
+        {
+            IRoleStore<IdentityRole> roleStore = new RoleStore<IdentityRole>(martenTestFixture.documentStore);
+            var name = await roleStore.GetNormalizedRoleNameAsync(new IdentityRole {  Name = "Staff" }, CancellationToken.None);
+            name.Should().Be("staff");
+        }
+
+        [Fact]
+        public async Task Should_be_able_to_Id_for_role()
+        {
+            IRoleStore<IdentityRole> roleStore = new RoleStore<IdentityRole>(martenTestFixture.documentStore);
+            var id = Guid.NewGuid().ToString();
+            var roleId = await roleStore.GetRoleIdAsync(new IdentityRole { Id=id,Name = "Staff" }, CancellationToken.None);
+            roleId.Should().Be(id);
+        }
+
+        [Fact]
+        public async Task Should_be_able_to_name_for_role()
+        {
+            IRoleStore<IdentityRole> roleStore = new RoleStore<IdentityRole>(martenTestFixture.documentStore);
+            var id = Guid.NewGuid().ToString();
+            var name = await roleStore.GetRoleNameAsync(new IdentityRole { Id = id, Name = "Staff" }, CancellationToken.None);
+            name.Should().Be("Staff");
+        }
+
+        [Fact]
+        public async Task Should_be_able_to_update_the_Role_name()
+        {
+            IRoleStore<IdentityRole> roleStore = new RoleStore<IdentityRole>(martenTestFixture.documentStore);
+            var id = Guid.NewGuid().ToString();
+            var identityResult = await roleStore.CreateAsync(new IdentityRole { Id = id, Name = "Manager sr1" }, CancellationToken.None);
+            if (identityResult.Succeeded)
+            {
+                IdentityResult result = await roleStore.UpdateAsync(new IdentityRole { Id = id, Name = "Manager sr2" }, CancellationToken.None);
+                result.Succeeded.Should().BeTrue();
+            }
+        }
     }
 }
