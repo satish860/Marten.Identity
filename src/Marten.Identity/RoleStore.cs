@@ -27,9 +27,14 @@ namespace Marten.Identity
             return IdentityResult.Success;
         }
 
-        public Task<IdentityResult> DeleteAsync(TRole role, CancellationToken cancellationToken)
+        public async Task<IdentityResult> DeleteAsync(TRole role, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            using (IDocumentSession session = this.documentStore.LightweightSession())
+            {
+                session.Delete(role);
+                await session.SaveChangesAsync();
+            }
+            return IdentityResult.Success;
         }
 
         public void Dispose()
