@@ -42,14 +42,20 @@ namespace Marten.Identity
             
         }
 
-        public Task<TRole> FindByIdAsync(string roleId, CancellationToken cancellationToken)
+        public async Task<TRole> FindByIdAsync(string roleId, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            using (IQuerySession session = this.documentStore.QuerySession())
+            {
+                return await session.Query<TRole>().SingleOrDefaultAsync(p => p.Id == roleId);
+            }
         }
 
-        public Task<TRole> FindByNameAsync(string normalizedRoleName, CancellationToken cancellationToken)
+        public async Task<TRole> FindByNameAsync(string normalizedRoleName, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            using (IQuerySession session = this.documentStore.QuerySession())
+            {
+                return await session.Query<TRole>().SingleOrDefaultAsync(p => p.Name == normalizedRoleName);
+            }
         }
 
         public Task<string> GetNormalizedRoleNameAsync(TRole role, CancellationToken cancellationToken)
