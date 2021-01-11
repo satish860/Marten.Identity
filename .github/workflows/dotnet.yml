@@ -23,3 +23,8 @@ jobs:
       run: dotnet build --no-restore
     - name: Test
       run: dotnet test --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutput=TestResults/ /p:CoverletOutputFormat=lcov
+    - name: Coveralls GitHub Action
+      uses: coverallsapp/github-action@v1.1.2
+      with:
+        github-token: ${{ secrets.COVERALLS_TOKEN }}
+        path-to-lcov: ./tests/Marten.Identity.Tests/TestResults/coverage.info 
