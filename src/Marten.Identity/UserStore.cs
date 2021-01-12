@@ -4,8 +4,11 @@ namespace Marten.Identity
     using Marten;
     using Microsoft.AspNetCore.Identity;
     using System;
+    using System.Collections.Generic;
+    using System.Security.Claims;
     using System.Threading;
     using System.Threading.Tasks;
+    using System.Linq;
 
     /// <summary>
     /// Defines the <see cref="UserStore{TUser, TRole}" />.
@@ -13,7 +16,8 @@ namespace Marten.Identity
     /// <typeparam name="TUser">.</typeparam>
     /// <typeparam name="TRole">.</typeparam>
     public class UserStore<TUser, TRole> : IUserStore<TUser>,
-         IUserPasswordStore<TUser>
+         IUserPasswordStore<TUser>,
+         IUserClaimStore<TUser>
          where TUser : IdentityUser
          where TRole : IdentityRole
     {
@@ -211,7 +215,51 @@ namespace Marten.Identity
         public Task<bool> HasPasswordAsync(TUser user, CancellationToken cancellationToken)
         {
             return Task.FromResult(!String.IsNullOrEmpty(user.PasswordHash));
-        } 
+        }
         #endregion
+
+        public Task<IList<Claim>> GetClaimsAsync(TUser user, CancellationToken cancellationToken)
+        {
+            IList<Claim> result = user.Claims
+                .Select(c => new Claim(c.ClaimType, c.ClaimValue))
+                .ToList();
+            return Task.FromResult(result);
+        }
+
+        public Task AddClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken)
+        {
+            IEnumerable<IdentityUserClaim> identityUserClaims = claims
+                .Select(p => new IdentityUserClaim { ClaimType = p.Type, ClaimValue = p.Value });
+            user.Claims.AddRange(identityUserClaims);
+            return Task.CompletedTask;
+        }
+
+        public async Task ReplaceClaimAsync(TUser user, Claim claim, Claim newClaim, CancellationToken cancellationToken)
+        {
+            var indexOfClaim = user.Claims.FindIndex(c => c.ClaimType == claim.Type && c.ClaimValue == claim.Value);
+            if (indexOfClaim != -1)
+            {
+                user.Claims.RemoveAt(indexOfClaim);
+                await this.AddClaimsAsync(user, new[] { newClaim }, cancellationToken);
+            }
+        }
+
+        public Task RemoveClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken)
+        {
+            user.Claims.RemoveAll(identityClaim => claims.Any(c => c.Type == identityClaim.ClaimType && c.Value == identityClaim.ClaimValue));
+            return Task.CompletedTask;
+        }
+
+        public async Task<IList<TUser>> GetUsersForClaimAsync(Claim claim, CancellationToken cancellationToken)
+        {
+            using (var querySession = documentStore.QuerySession())
+            {
+              var userList= await querySession.Query<TUser>()
+                    .Where(p => p.Claims.Any(q => q.ClaimType == claim.Type && q.ClaimValue == claim.Value))
+                    .ToListAsync();
+                return userList.ToList();
+            }
+        }
+        
     }
 }
