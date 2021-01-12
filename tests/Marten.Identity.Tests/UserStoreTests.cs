@@ -31,5 +31,23 @@ namespace Marten.Identity.Tests
             var name = await userStore.GetNormalizedUserNameAsync(new IdentityUser { Id = "1", UserName = "Satish" }, CancellationToken.None);
             name.Should().Be("satish");
         }
+
+        [Fact]
+        public async Task Should_be_Able_to_set_user_NormalizedName()
+        {
+            IUserStore<IdentityUser> userStore = new UserStore<IdentityUser, IdentityRole>(null);
+            var identity = new IdentityUser { Id = "1", UserName = "Satish" };
+            await userStore.SetNormalizedUserNameAsync(identity,"Satish2",CancellationToken.None);
+            identity.UserName.Should().Be("satish2");
+        }
+
+        [Fact]
+        public async Task Should_be_Able_to_set_user_Name()
+        {
+            IUserStore<IdentityUser> userStore = new UserStore<IdentityUser, IdentityRole>(null);
+            var identity = new IdentityUser { Id = "1", UserName = "Satish" };
+            await userStore.SetUserNameAsync(identity, "Satish2", CancellationToken.None);
+            identity.UserName.Should().Be("Satish2");
+        }
     } 
 }

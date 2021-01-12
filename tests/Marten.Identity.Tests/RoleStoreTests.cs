@@ -103,5 +103,36 @@ namespace Marten.Identity.Tests
                 result.Succeeded.Should().BeTrue();
             }
         }
+
+        [Fact]
+        public async Task Should_be_able_to_Delete_the_Role_name()
+        {
+            IRoleStore<IdentityRole> roleStore = new RoleStore<IdentityRole>(martenTestFixture.documentStore);
+            var id = Guid.NewGuid().ToString();
+            var identityResult = await roleStore.CreateAsync(new IdentityRole { Id = id, Name = "Manager sr1" }, CancellationToken.None);
+            if (identityResult.Succeeded)
+            {
+                IdentityResult result = await roleStore.DeleteAsync(new IdentityRole { Id = id, Name = "Manager sr1" }, CancellationToken.None);
+                result.Succeeded.Should().BeTrue();
+            }
+        }
+
+        [Fact]
+        public async Task Should_be_Able_to_set_Role_NormalizedName()
+        {
+            IRoleStore<IdentityRole> roleStore = new RoleStore<IdentityRole>(martenTestFixture.documentStore);
+            var identity = new IdentityRole { Id = "1", Name = "Satish" };
+            await roleStore.SetNormalizedRoleNameAsync(identity, "Satish2", CancellationToken.None);
+            identity.Name.Should().Be("satish2");
+        }
+
+        [Fact]
+        public async Task Should_be_Able_to_set_user_Name()
+        {
+            IRoleStore<IdentityRole> roleStore = new RoleStore<IdentityRole>(martenTestFixture.documentStore);
+            var identity = new IdentityRole { Id = "1", Name = "Satish" };
+            await roleStore.SetRoleNameAsync(identity, "Satish2", CancellationToken.None);
+            identity.Name.Should().Be("Satish2");
+        }
     }
 }
